@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>致我最爱的你 ❤️</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            overflow: hidden;
+            font-family: "Microsoft YaHei", sans-serif;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* 背景星空 */
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* 初始遮罩层 */
+        #start-screen {
+            position: absolute;
+            z-index: 100;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s;
+        }
+
+        .heart-beat {
+            font-size: 60px;
+            color: #ff4d4d;
+            animation: beat 1.2s infinite;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px #ff4d4d;
+        }
+
+        @keyframes beat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .btn-start {
+            padding: 15px 40px;
+            border: 1px solid #ff4d4d;
+            background: transparent;
+            color: #fff;
+            font-size: 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(255, 77, 77, 0.5);
+        }
+
+        .btn-start:active {
+            background: #ff4d4d;
+            transform: scale(0.95);
+        }
+
+        /* 内容区域 */
+        #content {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 600px;
+            text-align: left;
+            opacity: 0;
+            transition: opacity 2s;
+            display: none; /* 初始隐藏 */
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        #text-area {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            min-height: 200px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 20px;
+            background: #fff;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* 照片样式 */
+        #photo {
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 192, 203, 0.4);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 2s;
+            display: none;
+        }
+
+        /* 漂浮的爱心 */
+        .float-heart {
+            position: absolute;
+            color: #ff6b81;
+            animation: floatUp 4s linear forwards;
+            z-index: 5;
+            opacity: 0;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.5); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(-100vh) scale(1.5); opacity: 0; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- 背景音乐 -->
+    <!-- 替换 src 里的链接为你喜欢的音乐mp3地址 -->
+    <audio id="bgm" loop>
+        <source src="https://music.163.com/song/media/outer/url?id=29539085.mp3" type="audio/mpeg">
+    </audio>
+
+    <canvas id="canvas"></canvas>
+
+    <!-- 开场屏幕 -->
+    <div id="start-screen">
+        <div class="heart-beat">❤️</div>
+        <button class="btn-start" onclick="startJourney()">点击开启 属于我们的故事</button>
+    </div>
+
+    <!-- 表白内容 -->
+    <div id="content">
+        <div id="text-area"></div>
+        <!-- 替换下面的 src 为你们的合照链接，如果本地看就放本地图片路径 -->
+        <img id="photo" src="https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?q=80&w=1000&auto=format&fit=crop" alt="Us">
+    </div>
+
+    <script>
+        // --- 1. 配置你的内容 (在这里修改) ---
+        const myLoveName = "亲爱的姜学泽"; // 对方名字
+        const myName = "爱你的马佳奇"; // 你的名字
+        const startDate = "2024-9-30"; // 你们相识/在一起的日期
+
+        // 表白文字数组，每一行是一句话
+        const lines = [
+            `To ${myLoveName}：`,
+            " ", // 空行
+            "有些话，平时不好意思说出口，",
+            "但今天，我想写下来给你看。",
+            "在这个喧嚣的世界里，",
+            "遇见你，是我最大的运气。",
+            " ",
+            "记得我们第一次见面时，",
+            "你的笑容就像今天的星空一样闪耀。",
+            "我不善言辞，但我知道，",
+            "我的未来计划里，每一项都有你。",
+            " ",
+            "往后余生，风雪是你，",
+            "平淡是你，心底温柔是你。",
+            " ",
+            `From ${myName}`
+        ];
+
+        // -------------------------------------
+
+        // 动画逻辑
+        let canvas = document.getElementById('canvas');
+        let ctx = canvas.getContext('2d');
+        let width, height;
+        let stars = [];
+
+        function initCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        
+        // 星空背景效果
+        class Star {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 2;
+                this.speed = Math.random() * 0.5 + 0.1;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.random()})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            update() {
+                this.y -= this.speed;
+                if (this.y < 0) this.y = height;
+                this.draw();
+            }
+        }
+
+        function createStars() {
+            for(let i = 0; i < 200; i++) {
+                stars.push(new Star());
+            }
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, width, height);
+            stars.forEach(star => star.update());
+            requestAnimationFrame(animateStars);
+        }
+
+        initCanvas();
+        createStars();
+        animateStars();
+        window.addEventListener('resize', initCanvas);
+
+        // 开启旅程
+        function startJourney() {
+            const bgm = document.getElementById('bgm');
+            // 尝试播放音乐
+            bgm.play().catch(e => console.log("请手动点击播放"));
+
+            // 隐藏开始屏幕
+            document.getElementById('start-screen').style.opacity = 0;
+            setTimeout(() => {
+                document.getElementById('start-screen').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                
+                // 稍微延时让DOM渲染
+                setTimeout(() => {
+                    document.getElementById('content').style.opacity = 1;
+                    typeWriter(); // 开始打字
+                    startFloatingHearts(); // 开始飘心
+                }, 500);
+            }, 1000);
+        }
+
+        // 打字机效果
+        let lineIndex = 0;
+        let charIndex = 0;
+        const textArea = document.getElementById('text-area');
+        
+        function typeWriter() {
+            if (lineIndex < lines.length) {
+                const currentLine = lines[lineIndex];
+                
+                if (charIndex < currentLine.length) {
+                    // 添加字符
+                    let currentText = textArea.innerHTML;
+                    // 如果是新的一行开始且不是第一行，不需要额外处理，因为我们在换行时加了<br>
+                    // 这里为了处理简单，每次清空光标，加字，再加光标
+                    // 实际上我们追加内容
+                    if (charIndex === 0 && lineIndex > 0) {
+                         textArea.innerHTML += "<br>";
+                    }
+                    
+                    textArea.innerHTML = textArea.innerHTML.replace('<span class="cursor"></span>', ''); // 移除旧光标
+                    textArea.innerHTML += currentLine.charAt(charIndex);
+                    textArea.innerHTML += '<span class="cursor"></span>'; // 加新光标
+                    
+                    charIndex++;
+                    setTimeout(typeWriter, 100); // 打字速度
+                } else {
+                    lineIndex++;
+                    charIndex = 0;
+                    setTimeout(typeWriter, 300); // 换行停顿
+                }
+            } else {
+                // 打字结束
+                document.querySelector('.cursor').style.display = 'none';
+                showPhoto();
+            }
+        }
+
+        function showPhoto() {
+            const photo = document.getElementById('photo');
+            photo.style.display = 'block';
+            setTimeout(() => {
+                photo.style.opacity = 1;
+                photo.style.transform = 'translateY(0)';
+            }, 100);
+        }
+
+        // 飘心特效
+        function startFloatingHearts() {
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.classList.add('float-heart');
+                heart.innerHTML = '❤️';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                heart.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                document.body.appendChild(heart);
+
+                setTimeout(() => {
+                    heart.remove();
+                }, 5000);
+            }, 800);
+        }
+    </script>
+</body>
+</html>
