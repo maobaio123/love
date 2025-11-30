@@ -71,7 +71,8 @@
             transform: scale(0.95);
         }
 
-        /* 内容区域 */
+        
+        /* 内容区域 - 修改后的版本 */
         #content {
             position: relative;
             z-index: 10;
@@ -80,12 +81,22 @@
             text-align: left;
             opacity: 0;
             transition: opacity 2s;
-            display: none; /* 初始隐藏 */
+            display: none;
             background: rgba(255, 255, 255, 0.1);
             padding: 20px;
             border-radius: 15px;
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255,255,255,0.2);
+            
+            /* --- 新增的核心代码 --- */
+            max-height: 80vh; /* 限制高度为屏幕的80%，留出一点空隙 */
+            overflow-y: auto; /* 内容多了自动出现滚动条 */
+            -webkit-overflow-scrolling: touch; /* 让苹果手机滚动更丝滑 */
+        }
+
+        /* 隐藏滚动条但保留滚动功能（为了美观） */
+        #content::-webkit-scrollbar {
+            display: none;
         }
 
         #text-area {
@@ -163,7 +174,7 @@
 
     <script>
         // --- 1. 配置你的内容 (在这里修改) ---
-        const myLoveName = "亲爱的姜学泽"; // 对方名字
+        const myLoveName = "亲爱的邹岩"; // 对方名字
         const myName = "爱你的马佳奇"; // 你的名字
         const startDate = "2024-9-30"; // 你们相识/在一起的日期
 
